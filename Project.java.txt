@@ -1,0 +1,413 @@
+
+import java.util.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Arrays;
+import java.io.*;
+import java.util.PriorityQueue;
+
+
+public class Project 
+{
+    public static int i = 0;
+    public static String n;
+    ArrayList<String> list1 = new ArrayList<String>();
+    ArrayList<String> pass  = new ArrayList<String>();
+    ArrayList<String> xor   = new ArrayList<String>();
+    ArrayList<String> binar   = new ArrayList<String>();
+    ArrayList<String> result   = new ArrayList<String>();
+    ArrayList<String> asciiList  = new ArrayList<String>();
+    int[] calcHuffman = new int[256];
+    public class Node implements Comparable<Node>
+{
+ 	Node right,left;
+	int testTable;
+	char value;
+	int counter;
+	public Node(int testTable, char value){
+		this.testTable = testTable;
+		this.value = value;
+	}
+	
+	public boolean leaf(){
+		
+		if (left == null && right == null){
+			counter++;			
+			return true;
+		}
+		return false;
+	}
+	public Node(Node left, Node right){
+		this.right = right;		
+		this.testTable =  right.testTable + left.testTable ;
+		this.left = left;
+		
+	}
+	
+	public int getFrequency(){
+		return testTable;
+	}
+
+	
+	public int compareTo(Node other){
+		return (this.testTable - other.getFrequency());
+		
+	}
+
+	
+}
+    
+    public String readInput(){
+        
+        String password;
+        
+        try (BufferedReader br = new BufferedReader(new FileReader("inp.txt")))
+		{ 
+			String line; 
+			while ((line = br.readLine()) != null)
+                        {
+			      //System.out.println(line);
+                              list1.add(i,line);
+                              i=i+1;
+                        }                       
+ 
+		} 
+        
+                catch (IOException e) 
+                {
+			e.printStackTrace();
+		}
+        
+        Scanner in = new Scanner(System.in);
+        System.out.println("Please enter your 8 bit password : ");
+        password = in.nextLine();
+        System.out.println("Please enter a numerical value for caesar cipher: ");
+        n = in.nextLine();
+        in.close();
+        
+        return password;
+    }
+    
+    void XOR(String value)
+    {
+        
+        int j = 0;
+        String item1;
+        String item2;
+        StringBuilder sb = new StringBuilder();
+        
+        
+        for( j = 0; j < list1.size() ; j++) 
+        {
+            pass.add(j,value);
+            //System.out.println("Password array is : " + pass);
+        }
+        
+        for(j = 0; j<list1.size() ;j++)
+        {   
+                String build = "";
+                item1 = list1.get(j);
+                item2 = pass.get(j);
+                        
+                
+                        for( i=0; i<item1.length(); i++ )
+                        {
+                        int xored = 0;
+                        String temp = "";
+                        xored = item1.charAt(i) ^ item2.charAt(i);
+                        temp = Integer.toString(xored);
+                        build = build + temp;
+                        }
+            
+                xor.add(j,build);
+        }
+       //System.out.println("DEBUG XOR:" + xor);
+    }
+    
+    void cipher()
+    {
+        String bin;
+        String sum1 = "";
+        int k = Integer.parseInt(n);
+        bin = DecimalToBinary(k);
+        
+        if(bin.length() == 1 )
+        {
+            bin = "0000000" + bin;
+        }
+        else if(bin.length() == 2 )
+        {
+            bin = "000000" + bin;
+        }
+           
+        else if(bin.length() == 3 )
+        {
+            bin = "00000" + bin;
+        }
+        else if(bin.length() == 4 )
+        {
+            bin = "0000" + bin;
+        }
+        else if(bin.length() == 5 )
+        {
+            bin = "000" + bin;
+        }
+        else if(bin.length() == 6 )
+        {
+            bin =  "00" + bin;
+        }
+        else if(bin.length() == 7 )
+        {
+            bin = "0" + bin;
+        }
+        //System.out.println("binary value DEBUG :"+bin);
+        
+        for(int i = 0; i < xor.size(); i++)
+        {
+            binar.add(i,bin);
+        }
+        //System.out.println("DEBUG BINARY ARRAYLIST: " + binar);
+        for( int i = 0; i<xor.size(); i++)
+        {
+            int num0 = Integer.parseInt(xor.get(i),2);
+            int num1 = Integer.parseInt(binar.get(i),2);
+            int sum = num0 + num1;
+            //System.out.println("SUM" + sum);
+            if(sum>256)
+            {
+                sum = (sum%255);
+            }
+            else
+            {    
+            }   
+		//System.out.println("DEBUG newSUM" + sum);
+                sum1 = Integer.toBinaryString(sum);
+                if(sum1.length() == 1 )
+                {
+                sum1 = "0000000" + sum1;
+                }
+                else if(sum1.length() == 2 )
+                {
+                sum1 = "000000" + sum1;
+                }
+           
+                else if(sum1.length() == 3 )
+                {
+                sum1 = "00000" + sum1;
+                }
+                else if(sum1.length() == 4 )
+                {
+                sum1 = "0000" + sum1;
+                }    
+                else if(sum1.length() == 5 )
+                {
+                sum1 = "000" + sum1;
+                }
+                else if(sum1.length() == 6 )
+                {
+                sum1 =  "00" + sum1;
+                }
+                else
+                {
+                sum1 = "0" + sum1;
+                }
+        result.add(i,sum1);
+        //System.out.println("DEBUG after caeser: " + result);
+        }
+        //System.out.println("DEBUG after caeser: " + result);
+    }
+   
+    public String AsciiCompression()
+    {   
+        StringBuilder ss = new StringBuilder();
+        for(int i = 0; i<result.size(); i++)
+        {
+                int dec = Integer.parseInt(result.get(i), 2);
+                asciiList.add(i, String.valueOf(dec));
+                ss.append((char)dec);
+        }
+        String[] strArr = new String[asciiList.size()];
+        strArr = asciiList.toArray(strArr);
+        String s = Arrays.toString(strArr);
+        String[] strArr1 = new String[result.size()];
+        strArr1 = result.toArray(strArr1);
+        String s1 = Arrays.toString(strArr1);
+        //System.out.println("DEBUG s1 :" + s1);
+	
+        //System.out.println(csize);
+        int osize = s1.length();
+        //System.out.println(osize);
+       	//int spaces = ss.length() - ss.replace(" ", "").length();
+        //System.out.println("ASCII string is : " + ss );
+        //System.out.println("ss length: "+ ss.length());
+	String ssResult = ss.toString();
+	int csize = ssResult.length();
+	double AsciiRatio = CompressionRatio(csize, osize);
+	System.out.println("-----------------*****---------------*****------------------");
+	System.out.println("\n");
+	System.out.println("Compression Ratio of binary data into ASCII data before Huffman compression:\n " + AsciiRatio);
+	System.out.println("\n");
+	System.out.println("-----------------*****---------------*****------------------");
+	System.out.println("\n");
+	//System.out.println("ss_result: " + ssResult);
+	return ssResult;
+	//start huffman compression following the ascii compression
+	
+    
+    //System.out.println(asciiList);
+    }
+    
+    public double CompressionRatio(double ComSize, int OriginalSize)
+    {
+        double CR;
+        CR = (double) ComSize/OriginalSize;
+        return CR;
+    }
+    
+    void Huffman(String enc)
+    {
+	System.out.println("ASCII string to be compressed using huffman algorithm: " + enc);
+	System.out.println("\n");
+	System.out.println("-----------------*****---------------*****------------------");
+	System.out.println("\n");
+	HuffmanCompress(enc);
+
+    }
+
+
+    void HuffmanCompress(String data)
+    {
+	int count = 0;
+	Node t1 = null;
+	Node t2 = null;
+	int multi = 0;
+	PriorityQueue<Node> queue = new PriorityQueue<Node>();
+	String[] Arr = new String[256];
+	StringBuilder zz = new StringBuilder();
+	int[] testTable = new int[256];
+	
+	for(int i=0; i<data.length(); i++)
+	{	
+	int ascii = (int)data.charAt(i);
+	testTable[ascii]++;
+	}
+	//System.out.println("***");
+	while(count < testTable.length)
+	{
+	if(testTable[count] != 0)
+		{
+		queue.add(new Node(testTable[count], (char)count));
+		count++;
+		}
+	else
+		{
+		count++;
+		}
+	}
+	if(queue.size() < 1)
+	{
+		
+	}
+	else
+	{
+	while(queue.size() > 1)
+	{
+	t1 = queue.remove();
+	t2 = queue.remove();
+	queue.add(new Node(t1,t2));
+	}
+	}
+	Node head = queue.poll(); // gives the root of the tree 
+		
+	//System.out.println ( "Priority queue values after poll: "+ queue.size());
+	
+	
+	String[] returnArray = buildTable(Arr, head, "");
+	//System.out.println("DEBUG returnArray" + returnArray);
+	for (char c : data.toCharArray()){
+			zz.append(returnArray[c]);
+		}
+	//System.out.println("DEBUG zz" + zz);
+	
+		for(int i = 0; i < 256; i++){
+		try{if(!(returnArray[i].isEmpty()))System.out.println((char)i + " : " + returnArray[i] + "         :" + "frequency: " + testTable[i]);
+		}catch(NullPointerException e){continue;}
+		}
+		
+	for(int i = 0; i<256 ;i++)
+	{
+		try{
+			if(returnArray[i].isEmpty())
+			{
+			}
+			else
+			{
+			int size = returnArray[i].length();
+			int freq = testTable[i];
+			multi = multi + size * freq;
+			}
+		}
+		catch(NullPointerException e){continue;}
+		
+	}
+
+	//System.out.println("DEBUG multi:" + multi);
+	double div;
+	div = (double) multi/8;
+	String[] strArr2 = new String[result.size()];
+	strArr2 = result.toArray(strArr2);
+        String s2 = Arrays.toString(strArr2);
+	double HuffmanRatio = CompressionRatio(div, s2.length());
+	System.out.println("Compression Ratio after Huffman encoding is : " + HuffmanRatio);
+	
+}
+    public String[] buildTable(String[] Arr, Node rooted, String stri)
+    {
+	if(rooted.leaf())
+	{
+	Arr[rooted.value] = stri;	
+	}
+	else
+	{
+	buildTable(Arr, rooted.right, stri + '1');
+	buildTable(Arr, rooted.left, stri + '0');
+	
+	}
+	return Arr;
+    }
+    
+    public static String DecimalToBinary(int k)
+    {  
+       	if (k == 0) 
+       	{
+           return "0";
+       	}
+       	String binary = "";
+       	while (k > 0)
+       	{
+           int rem = k % 2;
+           binary = rem + binary;
+           k = k / 2;
+    }
+    return binary;
+
+         
+    }  
+    
+    public static void main(String[] args) {
+        
+        long progStart = System.currentTimeMillis();
+        Project ob1 = new Project();
+        String value = ob1.readInput();
+        ob1.XOR(value);
+        ob1.cipher();
+        String l = ob1.AsciiCompression();
+	ob1.Huffman(l);
+        long progEnd = System.currentTimeMillis();
+	long interval = progEnd - progStart;
+	System.out.println("THE PROGRAM RAN FOR : " + interval + "milliseconds");
+    }
+    
+}
+
